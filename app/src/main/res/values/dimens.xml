@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="margin_large">64dp</dimen>
+    <dimen name="margin_medium">48dp</dimen>
+    <dimen name="margin_standard">16dp</dimen>
+    <dimen name="padding_button_horizontal">24dp</dimen>
+
+    <dimen name="text_size_title">28sp</dimen>
+    <dimen name="text_size_timer_display">80sp</dimen>
+</resources>

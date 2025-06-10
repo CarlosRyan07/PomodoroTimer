@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PomodoroTimer</string>
+    <string name="title_pomodoro">Cronômetro Pomodoro</string>
+    <string name="initial_time">25:00</string>
+    <string name="button_start">Iniciar</string>
+    <string name="button_pause">Pausar</string>
+    <string name="button_reset">Reiniciar</string>
+    <string name="mode_focus">Modo: Foco</string>
+    <string name="mode_break">Modo: Descanso</string>
+    <string name="focus_ended_message">Tempo de foco terminado! Faça uma pausa.</string>
+    <string name="break_ended_message">Pausa terminada! Volte ao foco.</string>
+
+    <string-array name="break_messages">
+        <item>Curta sua pausa! Escute uma música.</item>
+        <item>Aproveite para fazer um lanchinho.</item>
+        <item>Levante-se, estique-se, pegue uma água.</item>
+        <item>Lembre-se de descansar os olhos.</item>
+        <item>Você está progredindo! Mantenha o ritmo.</item>
+        <item>Respire fundo, tome um pouco de ar livre.</item>
+        <item>Pense em algo bom e sorria.</item>
+    </string-array>
+</resources>

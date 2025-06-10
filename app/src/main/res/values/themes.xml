@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.PomodoroTimer" parent="Theme.AppCompat.NoActionBar"> <item name="android:colorBackground">@color/background_color</item>
+        <item name="android:textColorPrimary">@color/text_color_primary</item>
+        <item name="android:textColorSecondary">@color/text_color_secondary</item>
+        <item name="android:textColor">@color/text_color_primary</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/background_color</item>
+    </style>
+
+    <style name="PomodoroButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">@dimen/padding_button_horizontal</item>
+        <item name="android:paddingEnd">@dimen/padding_button_horizontal</item>
+    </style>
+
+    <style name="PomodoroButton.Start" parent="PomodoroButton">
+        <item name="android:backgroundTint">@color/button_start_background</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="PomodoroButton.Pause" parent="PomodoroButton">
+        <item name="android:backgroundTint">@color/button_pause_background</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="PomodoroButton.Reset" parent="PomodoroButton">
+        <item name="android:backgroundTint">@color/button_reset_background</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+</resources>

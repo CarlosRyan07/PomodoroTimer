@@ -39,8 +39,8 @@ class MainActivity : AppCompatActivity() {
     private var isRunning: Boolean = false
 
     // Tempos padrão do Pomodoro
-    private val focusTime = 0 * 60 * 1000L
-    private val breakTime = 0 * 60 * 1000L
+    private val focusTime = 25 * 60 * 1000L
+    private val breakTime = 5 * 60 * 1000L
     private val longBreakTime = 15 * 60 * 1000L
 
     private var isFocusMode: Boolean = true // Começa no modo foco

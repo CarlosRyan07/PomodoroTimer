@@ -123,6 +123,31 @@ class MainActivity : AppCompatActivity() {
         startButton.setOnClickListener { startTimer() }
         pauseButton.setOnClickListener { pauseTimer() }
         resetButton.setOnClickListener { resetTimer() }
+
+        // --- NOVA LÓGICA: Ouvinte de clique para avançar imagens/mensagens ---
+        animatedImageView.setOnClickListener {
+            if (isFocusMode) {
+                // Se estiver no modo foco, avança a imagem de foco
+                focusImageHandler.removeCallbacks(focusImageRunnable) // Para o agendamento atual
+                updateFocusImage() // Atualiza imediatamente para a próxima imagem
+                focusImageHandler.postDelayed(focusImageRunnable, 10000L) // Reinicia o agendamento
+            } else {
+                // Se estiver no modo pausa, avança a imagem E a mensagem de pausa
+                messageHandler.removeCallbacks(messageRunnable) // Para o agendamento atual
+                updateBreakMessage() // Atualiza imediatamente para a próxima mensagem e imagem
+                messageHandler.postDelayed(messageRunnable, 7000L) // Reinicia o agendamento
+            }
+        }
+
+        breakMessageDisplay.setOnClickListener {
+            if (!isFocusMode) {
+                // Se estiver no modo pausa, avança a imagem E a mensagem de pausa
+                messageHandler.removeCallbacks(messageRunnable) // Para o agendamento atual
+                updateBreakMessage() // Atualiza imediatamente para a próxima mensagem e imagem
+                messageHandler.postDelayed(messageRunnable, 7000L) // Reinicia o agendamento
+            }
+        }
+        // --- FIM DA NOVA LÓGICA ---
     }
 
     // Função para iniciar o cronômetro
@@ -248,6 +273,8 @@ class MainActivity : AppCompatActivity() {
         currentMessageIndex = 0
         currentBreakImageIndex = 0
 
+        // Certifica-se de que a rotação automática seja limpa antes de reiniciar
+        messageHandler.removeCallbacks(messageRunnable)
         breakMessageDisplay.visibility = View.VISIBLE
         animatedImageView.visibility = View.VISIBLE
 
@@ -281,6 +308,8 @@ class MainActivity : AppCompatActivity() {
     // FUNÇÕES PARA GERENCIAR A ROTAÇÃO DE IMAGENS NO MODO FOCO
     private fun startFocusImagesRotation() {
         currentFocusImageIndex = 0
+        // Certifica-se de que a rotação automática seja limpa antes de reiniciar
+        focusImageHandler.removeCallbacks(focusImageRunnable)
         animatedImageView.visibility = View.VISIBLE
         updateFocusImage() // Mostra a primeira imagem imediatamente
         focusImageHandler.postDelayed(focusImageRunnable, 10000L) // Tempo de rotação do foco: 10 segundos

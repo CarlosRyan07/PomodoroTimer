@@ -1,4 +1,3 @@
-// build.gradle.kts (Module :app)
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -37,20 +36,20 @@ android {
 }
 
 dependencies {
-    // Dependências ESSENCIAIS para Views Tradicionais:
-    implementation(libs.androidx.core.ktx) // Já está correto usando libs.versions.toml
+    // Core KTX
+    implementation(libs.androidx.core.ktx)
 
-    // CORRIGIDO: Agora todas as strings diretas estão com "()"
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.10.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    // UI Libraries (usando libs.versions.toml)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.google.material)
+    implementation(libs.androidx.constraintlayout)
 
-    // Para loading images and GIFs (Glide) - Corrigido, usa libs.versions.toml
+    // Glide
     implementation(libs.glide)
     annotationProcessor(libs.glide.compiler)
 
-    // Testes - CORRIGIDO: Agora todas as strings diretas estão com "()"
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    // Test dependencies (usando libs.versions.toml)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

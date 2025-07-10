@@ -1,3 +1,5 @@
+Markdown
+
 # 🍅 Cronômetro Pomodoro: Foco no que Importa! 🚀
 
 <p align="center">
@@ -14,7 +16,7 @@ O Cronômetro Pomodoro é um aplicativo simples e intuitivo para Android, focado
 
 ### 🎬 Veja o Projeto em Ação!
 
-Assista a uma breve demonstração do Cronômetro Pomodoro e suas funcionalidades.
+Assista a uma breve demonstração do Cronômetro Pomodoro e suas funcionalidades(Esta desatualizado pois no video ainda não havia aplicado a tela de configuração).
 [**Clique aqui para assistir ao vídeo de demonstração**](https://drive.google.com/file/d/1PgOBNFAmZYTKtV6_PhzLtNQOIkVQRROE/view?usp=sharing)
 
 ---
@@ -23,22 +25,38 @@ Assista a uma breve demonstração do Cronômetro Pomodoro e suas funcionalidade
 
 Seu novo aliado da produtividade vem com:
 
-* **Contador Visual:** Um timer claro e vibrante para acompanhar seus 25 minutos de foco e 5 de descanso.
+* **Contador Visual:** Um timer claro e vibrante para acompanhar seus minutos de foco e descanso.
+
 * **Modos de Sessão:** Alterna automaticamente entre "Modo: Foco" e "Modo: Descanso". 💡
+
 * **Pausas Longas:** Após cada 4 ciclos de foco, desfrute de uma pausa mais longa (15 minutos) para recarregar as energias. ☕
+
 * **Feedback Inteligente:**
     * **Vibração:** Sinta o fim da sessão com uma vibração discreta. 📱
-    * **Alarme Sonoro:** Um som te avisa que é hora de trocar de atividade. 🔔
+    * **(Alarme Sonoro removido para uma experiência mais silenciosa e focada)**
+
 * **Conteúdo Dinâmico:**
     * **Imagens Rotativas:** Durante o "Modo: Foco", imagens inspiradoras de estudo e produtividade aparecem a cada 10 segundos. 📚✨
     * **Mensagens Motivacionais:** No "Modo: Descanso", receba dicas de relaxamento e lembretes para sua pausa a cada 7 segundos. 🧘‍♀️💧
+    * **Interatividade ao Toque:** Avance as imagens e mensagens de foco/descanso com um simples toque na tela, a qualquer momento, independentemente do estado do contador. ✨
+
 * **Controles Simples:** Botões intuitivos para Iniciar ▶️, Pausar ⏸️ e Reiniciar 🔄.
+
 * **Experiência Consistente:**
     * **Modo Escuro Fixo:** Um tema escuro elegante e confortável para os olhos em qualquer ambiente. 🌙
     * **Orientação Travada:** Mantenha o foco sem interrupções, pois a tela permanece na orientação vertical. 🔒
+
 * **Sessões Flexíveis:**
     * **Pausar e Continuar:** Pause o timer e continuar quando quiser, sem perder o progresso. ⏸️
     * **Reiniciar a Qualquer Momento:** Volte ao início do ciclo com facilidade. ↩️
+
+* **Configurações Personalizáveis:**
+    * **Tempos Ajustáveis:** Acesse uma tela dedicada para definir seus próprios tempos para o foco, pausa curta e pausa longa. O contador principal se adapta instantaneamente às suas preferências. ⚙️
+    * **Controle de Vibração:** Ative ou desative a vibração ao final dos ciclos.
+
+    <p align="center">
+    <img src="img/PomodoroConfig.jpg" alt="Tela de Configurações do Pomodoro" width="250">
+    </p>
 
 ---
 
@@ -84,7 +102,7 @@ Siga estes passos para ter o Cronômetro Pomodoro rodando no seu dispositivo:
 O projeto conta com alguns testes para garantir a robustez das funcionalidades principais:
 
 * **Testes Unitários:** Verificam a lógica isolada de formatação de tempo e gerenciamento de ciclos Pomodoro.
-    * **Como Rodar:** No Android Studio, navegue até `app/src/test/java/com/example/pomodorotimer/` e clique com o botão direito no arquivo `TimerUtilsTest.kt` e selecione `Run 'TimerUtilsTest'`.
+    * **Como Rodar:** No Android Studio, navegue até `app/src/test/java/com.example.pomodorotimer/` e clique com o botão direito no arquivo `TimerUtilsTest.kt` e selecione `Run 'TimerUtilsTest'`.
 
 ---
 
@@ -92,41 +110,17 @@ O projeto conta com alguns testes para garantir a robustez das funcionalidades p
 
 Esta seção detalha o funcionamento interno do aplicativo Pomodoro Timer, dividindo o código em partes lógicas para facilitar a compreensão de sua estrutura e comportamento.
 
-### 1. Importações e Estrutura Principal da Activity
+### 1. Importações e Estrutura Principal (`MainActivity` e `SettingsActivity`)
 
-Esta seção mostra as bibliotecas que o aplicativo utiliza e a estrutura fundamental da `MainActivity`, que é a tela principal do seu aplicativo.
+Esta seção descreve as bibliotecas que o aplicativo utiliza e a estrutura fundamental das suas duas telas principais: `MainActivity` (a tela do cronômetro) e `SettingsActivity` (a tela de configurações).
 
-* **Importações:** Permitem o uso de funcionalidades do Android (como `Button`, `TextView`, `CountDownTimer`, `Vibrator`) e de bibliotecas externas (como Glide para carregamento de imagens).
-* **Declaração da MainActivity:** É a classe que representa sua tela principal no Android, estendendo `AppCompatActivity` para compatibilidade com diferentes versões do sistema.
+* **Importações:** Permitem o uso de funcionalidades do Android (como `Button`, `TextView`, `CountDownTimer`, `Vibrator`, `SharedPreferences`) e de bibliotecas externas (como Glide para carregamento de imagens).
 
-```kotlin
-package com.example.pomodorotimer
+* **`MainActivity`:** É a classe principal que representa a tela do cronômetro Pomodoro. Ela gerencia a UI, a lógica do timer, a exibição de conteúdo dinâmico e a navegação para a tela de configurações.
 
-import android.os.Build
-import android.os.Bundle
-import android.os.CountDownTimer
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import java.util.Locale
-import java.util.concurrent.TimeUnit
-import android.os.Handler // Importe Handler para agendar tarefas
-import android.os.Looper // Importe Looper para obter o Looper da thread principal
-import android.view.View // Importe View para View.VISIBLE/GONE
+* **`SettingsActivity`:** É a classe que representa a tela de configurações, onde o usuário pode personalizar os tempos do Pomodoro e se quer vibração ao completar o tempo.
 
-import com.bumptech.glide.Glide // Importe para a biblioteca Glide
-import android.widget.ImageView // Revertido para ImageView padrão
 
-import androidx.core.content.ContextCompat
-import android.os.VibratorManager // Importe para API 31+ (Android 12)
-
-class MainActivity : AppCompatActivity() {
-    // ... restante do código ...
-}
-```
 
 ### 2. Declaração de Variáveis (UI e Lógica do Timer)
 

@@ -1,5 +1,8 @@
 package com.example.pomodorotimer
 
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -11,15 +14,16 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import java.util.Locale
 import java.util.concurrent.TimeUnit
-import android.os.Handler // Importe Handler para agendar tarefas
-import android.os.Looper // Importe Looper para obter o Looper da thread principal
-import android.view.View // Importe View para View.VISIBLE/GONE
+import android.os.Handler
+import android.os.Looper
+import android.view.View
+import android.util.Log // Adicionar import para Log
 
-import com.bumptech.glide.Glide // Importe para a biblioteca Glide
-import android.widget.ImageView // Revertido para ImageView padrão
+import com.bumptech.glide.Glide
+import android.widget.ImageView
 
 import androidx.core.content.ContextCompat
-import android.os.VibratorManager // Importe para API 31+ (Android 12)
+import android.os.VibratorManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,20 +34,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var resetButton: Button
     private lateinit var modeIndicator: TextView
     private lateinit var breakMessageDisplay: TextView
-    // REVERTIDO: Tipo da variável para ImageView
     private lateinit var animatedImageView: ImageView
+
+    // Declare o botão de configurações
+    private lateinit var settingsButton: Button
 
     // Variáveis de controle do cronômetro
     private var countDownTimer: CountDownTimer? = null
     private var timeLeftInMillis: Long = 0L
     private var isRunning: Boolean = false
 
-    // Tempos padrão do Pomodoro
-    private val focusTime = 25 * 60 * 1000L
-    private val breakTime = 5 * 60 * 1000L
-    private val longBreakTime = 15 * 60 * 1000L
+    // Mude de 'val' para 'var' para que possam ser atualizados pelas configurações
+    private var focusTime = 25 * 60 * 1000L
+    private var breakTime = 5 * 60 * 1000L
+    private var longBreakTime = 15 * 60 * 1000L
 
-    private var isFocusMode: Boolean = true // Começa no modo foco
+    private var isFocusMode: Boolean = true
     private var pomodoroCycles: Int = 0
 
     // VARIÁVEIS E LÓGICA PARA AS MENSAGENS DE PAUSA
@@ -85,7 +91,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Variáveis para controlar feedback de vibração
+    private var isVibrationEnabled: Boolean = true
 
+    // SharedPreferences para carregar configurações
+    private lateinit var sharedPreferences: SharedPreferences
+
+
+    @Override
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -97,13 +110,19 @@ class MainActivity : AppCompatActivity() {
         resetButton = findViewById(R.id.resetButton)
         modeIndicator = findViewById(R.id.modeIndicator)
         breakMessageDisplay = findViewById(R.id.breakMessageDisplay)
-        // REVERTIDO: Inicializando como ImageView normal
         animatedImageView = findViewById(R.id.animatedImageView)
+
+        // Inicializa o botão de configurações
+        settingsButton = findViewById(R.id.settingsButton)
 
         // Inicializa o array de mensagens de pausa a partir de strings.xml
         breakMessages = resources.getStringArray(R.array.break_messages)
 
-        // Define o tempo inicial como o tempo de foco e atualiza o display
+        // Inicializa SharedPreferences
+        sharedPreferences = getSharedPreferences("PomodoroSettings", Context.MODE_PRIVATE)
+
+        // Não chame loadTimerSettings() aqui, onResume cuidará disso para garantir os valores mais recentes.
+        // Apenas inicialize timeLeftInMillis com um valor padrão para que o display não fique vazio.
         timeLeftInMillis = focusTime
         updateCountDownText()
         updateModeIndicator()
@@ -124,40 +143,111 @@ class MainActivity : AppCompatActivity() {
         pauseButton.setOnClickListener { pauseTimer() }
         resetButton.setOnClickListener { resetTimer() }
 
-        // --- NOVA LÓGICA: Ouvinte de clique para avançar imagens/mensagens ---
+        // --- LÓGICA: Ouvinte de clique para avançar imagens/mensagens ---
+        // REMOVIDA A CONDIÇÃO 'if (isRunning)'
         animatedImageView.setOnClickListener {
             if (isFocusMode) {
-                // Se estiver no modo foco, avança a imagem de foco
-                focusImageHandler.removeCallbacks(focusImageRunnable) // Para o agendamento atual
-                updateFocusImage() // Atualiza imediatamente para a próxima imagem
-                focusImageHandler.postDelayed(focusImageRunnable, 10000L) // Reinicia o agendamento
+                focusImageHandler.removeCallbacks(focusImageRunnable)
+                updateFocusImage()
+                focusImageHandler.postDelayed(focusImageRunnable, 10000L)
             } else {
-                // Se estiver no modo pausa, avança a imagem E a mensagem de pausa
-                messageHandler.removeCallbacks(messageRunnable) // Para o agendamento atual
-                updateBreakMessage() // Atualiza imediatamente para a próxima mensagem e imagem
-                messageHandler.postDelayed(messageRunnable, 7000L) // Reinicia o agendamento
+                messageHandler.removeCallbacks(messageRunnable)
+                updateBreakMessage()
+                messageHandler.postDelayed(messageRunnable, 7000L)
             }
         }
 
+        // REMOVIDA A CONDIÇÃO 'if (isRunning)'
         breakMessageDisplay.setOnClickListener {
-            if (!isFocusMode) {
-                // Se estiver no modo pausa, avança a imagem E a mensagem de pausa
-                messageHandler.removeCallbacks(messageRunnable) // Para o agendamento atual
-                updateBreakMessage() // Atualiza imediatamente para a próxima mensagem e imagem
-                messageHandler.postDelayed(messageRunnable, 7000L) // Reinicia o agendamento
+            if (!isFocusMode) { // Apenas no modo pausa, já que não temos mensagens de foco
+                messageHandler.removeCallbacks(messageRunnable)
+                updateBreakMessage()
+                messageHandler.postDelayed(messageRunnable, 7000L)
             }
         }
         // --- FIM DA NOVA LÓGICA ---
+
+        // Configura o ouvinte de clique para o botão de configurações
+        settingsButton.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
     }
+
+    @Override
+    override fun onResume() {
+        super.onResume()
+        // SEMPRE recarrega as configurações e ATUALIZA o display aqui.
+        // onResume é chamado quando a Activity volta ao foco (ex: após fechar SettingsActivity).
+        Log.d("MainActivity", "onResume called. Loading settings.")
+        loadTimerSettings()
+    }
+
+    // Função para carregar as configurações do timer
+    private fun loadTimerSettings() {
+        // Carrega os valores em minutos e converte para milissegundos
+        val newFocusTime = sharedPreferences.getInt("focusTime", 25) * 60 * 1000L
+        val newBreakTime = sharedPreferences.getInt("breakTime", 5) * 60 * 1000L
+        val newLongBreakTime = sharedPreferences.getInt("longBreakTime", 15) * 60 * 1000L
+        val newVibrationEnabled = sharedPreferences.getBoolean("vibrationEnabled", true)
+
+        // Atualiza as variáveis de classe com os novos valores
+        focusTime = newFocusTime
+        breakTime = newBreakTime
+        longBreakTime = newLongBreakTime
+        isVibrationEnabled = newVibrationEnabled
+
+        Log.d("MainActivity", "Loaded settings: Focus=${focusTime/60000}min, Break=${breakTime/60000}min, LongBreak=${longBreakTime/60000}min, Vibrate=$isVibrationEnabled")
+
+        // Se o timer NÃO estiver rodando, atualiza timeLeftInMillis e o display
+        // com os novos tempos configurados para o modo atual.
+        if (!isRunning) {
+            if (isFocusMode) {
+                timeLeftInMillis = focusTime
+            } else {
+                // Se estiver em modo de pausa, o tempo restante será o tempo de pausa configurado
+                timeLeftInMillis = if (pomodoroCycles % 4 == 0) longBreakTime else breakTime
+            }
+            updateCountDownText() // Atualiza o display IMEDIATAMENTE
+            Log.d("MainActivity", "Timer not running, updated timeLeftInMillis to ${timeLeftInMillis/1000}s. Display: ${timerDisplay.text}")
+        } else {
+            Log.d("MainActivity", "Timer is running, new settings will apply next cycle.")
+        }
+    }
+
 
     // Função para iniciar o cronômetro
     private fun startTimer() {
         if (isRunning) return
 
         isRunning = true
-        // Para todas as rotações anteriores para evitar conflitos, mas sem limpar/esconder o conteúdo VISÍVEL.
         stopAllDynamicContentRotationHandlers()
 
+        // Cancela qualquer timer existente para garantir um início/retomada limpa
+        countDownTimer?.cancel()
+        Log.d("MainActivity", "startTimer called. isRunning: $isRunning, timeLeftInMillis before start: ${timeLeftInMillis/1000}s")
+
+
+        // Lógica para definir o timeLeftInMillis no início do timer
+        // Se o timer estava previamente finalizado ou resetado (countDownTimer é null),
+        // OU se timeLeftInMillis é 0 (significando que terminou sua contagem),
+        // devemos re-inicializar timeLeftInMillis para a duração total do modo atual.
+        // Caso contrário, retomamos do timeLeftInMillis atual (se estava pausado).
+        if (countDownTimer == null || timeLeftInMillis == 0L) {
+            // Esta condição verifica se o tempo atual é um dos tempos "cheios" ou se o timer já terminou.
+            // Se sim, significa que estamos começando um NOVO ciclo ou reiniciando após um fim.
+            if (isFocusMode) {
+                timeLeftInMillis = focusTime
+            } else {
+                timeLeftInMillis = if (pomodoroCycles % 4 == 0) longBreakTime else breakTime
+            }
+            Log.d("MainActivity", "Initializing new timer cycle with full time: ${timeLeftInMillis/1000}s")
+        } else {
+            // Se timeLeftInMillis não é um tempo "cheio" e não é 0, significa que o timer foi pausado
+            Log.d("MainActivity", "Resuming paused timer from: ${timeLeftInMillis/1000}s")
+        }
+
+        updateCountDownText() // Garante que o display mostre o tempo que o timer vai usar
 
         countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -167,35 +257,37 @@ class MainActivity : AppCompatActivity() {
 
             override fun onFinish() {
                 isRunning = false
-                countDownTimer = null
+                countDownTimer = null // Define como null para indicar que o ciclo terminou
 
                 triggerFeedback()
 
                 if (isFocusMode) {
                     // Foco terminou, vai para Pausa
                     pomodoroCycles++
-                    timeLeftInMillis = if (pomodoroCycles % 4 == 0) longBreakTime else breakTime
                     isFocusMode = false
+                    // Define o timeLeftInMillis para o PRÓXIMO ciclo (pausa)
+                    timeLeftInMillis = if (pomodoroCycles % 4 == 0) longBreakTime else breakTime
                     Toast.makeText(this@MainActivity, getString(R.string.focus_ended_message), Toast.LENGTH_SHORT).show()
-                    updateModeIndicator() // "Modo: Pausa"
-                    stopFocusImagesRotationOnlyHandlers() // Para a rotação de foco
-                    startBreakMessagesAndRotation() // Inicia mensagens e imagens de pausa
+                    updateModeIndicator()
+                    stopFocusImagesRotationOnlyHandlers()
+                    startBreakMessagesAndRotation()
                 } else {
                     // Pausa terminou, vai para Foco
-                    timeLeftInMillis = focusTime
                     isFocusMode = true
+                    // Define o timeLeftInMillis para o PRÓXIMO ciclo (foco)
+                    timeLeftInMillis = focusTime
                     Toast.makeText(this@MainActivity, getString(R.string.break_ended_message), Toast.LENGTH_SHORT).show()
-                    updateModeIndicator() // "Modo: Foco"
-                    clearBreakContentViews() // Limpa e esconde o conteúdo de PAUSA
-                    startFocusImagesRotation() // Inicia rotação de imagens de foco
+                    updateModeIndicator()
+                    clearBreakContentViews()
+                    startFocusImagesRotation()
                 }
-                updateCountDownText()
+                updateCountDownText() // Atualiza o display para mostrar o tempo inicial do novo ciclo
+                Log.d("MainActivity", "Cycle finished. Next timeLeftInMillis: ${timeLeftInMillis/1000}s. Mode: ${if(isFocusMode) "Focus" else "Break"}")
                 // Opcional: Para iniciar o próximo timer automaticamente:
                 // startTimer()
             }
         }.start()
 
-        // Aciona a rotação de conteúdo baseada no modo atual ao INICIAR (ou RESUMIR) o timer
         if (isFocusMode) {
             startFocusImagesRotation()
         } else {
@@ -207,6 +299,7 @@ class MainActivity : AppCompatActivity() {
     private fun pauseTimer() {
         countDownTimer?.cancel() // Para o timer principal (o tempo vai parar)
         isRunning = false
+        Log.d("MainActivity", "Timer paused. timeLeftInMillis: ${timeLeftInMillis/1000}s")
         // Rotação de mensagens e imagens CONTINUA.
     }
 
@@ -215,8 +308,10 @@ class MainActivity : AppCompatActivity() {
         countDownTimer?.cancel()
         isRunning = false
         isFocusMode = true
+        pomodoroCycles = 0 // Zera os ciclos ao resetar completamente
+
+        // Usa o focusTime carregado das configurações para o reset
         timeLeftInMillis = focusTime
-        pomodoroCycles = 0
         updateCountDownText()
         updateModeIndicator()
 
@@ -225,6 +320,7 @@ class MainActivity : AppCompatActivity() {
 
         // APÓS O RESET, ESTAMOS NO MODO FOCO, ENTÃO REINICIAMOS A ROTAÇÃO DE IMAGENS DE FOCO
         startFocusImagesRotation()
+        Log.d("MainActivity", "Timer reset. timeLeftInMillis: ${timeLeftInMillis/1000}s")
     }
 
     // Função para formatar e atualizar o texto do cronômetro (MM:SS)
@@ -241,30 +337,25 @@ class MainActivity : AppCompatActivity() {
         modeIndicator.text = if (isFocusMode) getString(R.string.mode_focus) else getString(R.string.mode_break)
     }
 
-    // Aciona feedback de vibração e som
+    // Aciona feedback de vibração
     private fun triggerFeedback() {
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = ContextCompat.getSystemService(this, VibratorManager::class.java)
-            vibratorManager?.defaultVibrator
-        } else {
-            ContextCompat.getSystemService(this, Vibrator::class.java)
-        }
-
-        vibrator?.let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                it.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)) // 1 segundo de vibração
+        // Verifica se a vibração está ativada nas configurações
+        if (isVibrationEnabled) {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = ContextCompat.getSystemService(this, VibratorManager::class.java)
+                vibratorManager?.defaultVibrator
             } else {
-                @Suppress("DEPRECATION")
-                it.vibrate(1000) // 1 segundo de vibração
+                ContextCompat.getSystemService(this, Vibrator::class.java)
             }
-        }
 
-        try {
-            val notificationUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
-            val ringtone = android.media.RingtoneManager.getRingtone(applicationContext, notificationUri)
-            ringtone.play()
-        } catch (e: Exception) {
-            e.printStackTrace()
+            vibrator?.let {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    it.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)) // 1 segundo de vibração
+                } else {
+                    @Suppress("DEPRECATION")
+                    it.vibrate(1000) // 1 segundo de vibração
+                }
+            }
         }
     }
 
@@ -361,7 +452,7 @@ class MainActivity : AppCompatActivity() {
         focusImageHandler.removeCallbacks(focusImageRunnable)
     }
 
-    // Garante que cronômetros e handlers sejam cancelados quando a Activity é destruída
+    @Override
     override fun onDestroy() {
         super.onDestroy()
         countDownTimer?.cancel()

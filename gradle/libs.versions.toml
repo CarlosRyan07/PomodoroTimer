@@ -7,16 +7,20 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.09.00"
-coreKtx = "1.10.0" # ATUALIZADO
+coreKtx = "1.10.0"
 glide = "4.12.0"
+appcompat = "1.6.1" # ADICIONE ESTA LINHA
+material = "1.10.0" # ADICIONE ESTA LINHA
+constraintlayout = "2.1.4" # ADICIONE ESTA LINHA
 
 [libraries]
-# ... suas outras libs ...
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" } # ADICIONE ESTA LINHA
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" } # ADICIONE ESTA LINHA
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" } # ADICIONE ESTA LINHA
 
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
-
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -36,4 +40,3 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-

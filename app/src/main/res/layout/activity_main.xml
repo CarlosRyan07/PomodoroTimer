@@ -1,110 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#202020"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textViewTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/title_pomodoro"
-        android:textSize="@dimen/text_size_title"
-        android:textStyle="bold"
-        android:textColor="?android:attr/textColorPrimary"
-        android:layout_marginTop="@dimen/margin_large"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+    <!-- Display do Cronômetro -->
     <TextView
         android:id="@+id/timerDisplay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/initial_time"
-        android:textSize="@dimen/text_size_timer_display"
+        android:text="25:00"
+        android:textSize="80sp"
+        android:textColor="#FFFFFF"
         android:textStyle="bold"
-        android:textColor="@color/timer_display_color"
-        android:layout_marginTop="@dimen/margin_medium"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTitle" />
+        android:layout_marginBottom="24dp"/>
 
-    <LinearLayout
-        android:id="@+id/buttonContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="@dimen/margin_medium"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/timerDisplay">
-
-        <Button
-            android:id="@+id/startButton"
-            android:text="@string/button_start"
-            android:layout_marginEnd="@dimen/margin_standard"
-            style="@style/PomodoroButton.Start" />
-
-        <Button
-            android:id="@+id/pauseButton"
-            android:text="@string/button_pause"
-            android:layout_marginEnd="@dimen/margin_standard"
-            style="@style/PomodoroButton.Pause" />
-
-        <Button
-            android:id="@+id/resetButton"
-            android:text="@string/button_reset"
-            style="@style/PomodoroButton.Reset" />
-    </LinearLayout>
-
+    <!-- Indicador de Modo (Foco/Pausa) -->
     <TextView
         android:id="@+id/modeIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/mode_focus"
-        android:textSize="20sp"
-        android:textColor="?android:attr/textColorSecondary"
-        android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonContainer" />
+        android:text="Modo: Foco"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp"/>
 
-    <ImageView
-        android:id="@+id/animatedImageView"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:scaleType="fitCenter"
-        android:layout_marginTop="24dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/modeIndicator"
-        android:visibility="gone"
-        tools:src="@drawable/foco"
-        />
-
+    <!-- Display de Mensagens de Pausa -->
     <TextView
         android:id="@+id/breakMessageDisplay"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
+        android:textAlignment="center"
+        android:text="Hora de uma pausa!"
         android:textSize="18sp"
-        android:textStyle="italic"
-        android:textColor="?android:attr/textColorPrimary"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="@dimen/margin_large"
-        android:layout_marginStart="@dimen/margin_large"
-        android:layout_marginEnd="@dimen/margin_large"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/animatedImageView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:visibility="gone"
-        />
+        android:textColor="#CCCCCC"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" /> <!-- Inicialmente invisível -->
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- ImageView para Imagens Animadas/GIFs -->
+    <ImageView
+        android:id="@+id/animatedImageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/foco" /> <!-- Imagem padrão de foco -->
+
+    <!-- Botões de Controle -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp">
+
+        <Button
+            android:id="@+id/startButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Iniciar"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/pauseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pausar"
+            android:backgroundTint="#FFC107"
+            android:textColor="#212121"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/resetButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reiniciar"
+            android:backgroundTint="#F44336"
+            android:textColor="#FFFFFF"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="8dp"/>
+    </LinearLayout>
+
+    <!-- Botão de Configurações -->
+    <Button
+        android:id="@+id/settingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Configurações"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal"
+        android:backgroundTint="#60A5FA"
+        android:textColor="#FFFFFF"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="8dp"/>
+
+</LinearLayout>
